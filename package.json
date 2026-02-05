@@ -13,6 +13,7 @@
     "@giscus/react": "^3.0.0",
     "@tiptap/extension-code-block-lowlight": "^3.19.0",
     "@tiptap/extension-link": "^3.19.0",
+    "@tiptap/extension-youtube": "^3.19.0",
     "@tiptap/react": "^3.19.0",
     "@tiptap/starter-kit": "^3.19.0",
     "gray-matter": "^4.0.3",

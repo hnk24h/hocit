@@ -175,3 +175,23 @@ a {
 .ProseMirror em {
   @apply italic;
 }
+
+/* Video/Iframe wrapper for responsive embeds */
+.iframe-wrapper {
+  @apply relative w-full my-6;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+}
+
+.iframe-wrapper iframe {
+  @apply absolute top-0 left-0 w-full h-full rounded-lg;
+}
+
+/* YouTube embed styling */
+.ProseMirror div[data-youtube-video] {
+  @apply my-6;
+}
+
+.ProseMirror div[data-youtube-video] iframe {
+  @apply w-full rounded-lg;
+  aspect-ratio: 16/9;
+}

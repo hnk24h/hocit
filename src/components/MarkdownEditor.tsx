@@ -4,11 +4,38 @@ import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Link from '@tiptap/extension-link'
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight'
+import Youtube from '@tiptap/extension-youtube'
+import { Node } from '@tiptap/core'
 import { createLowlight, common } from 'lowlight'
 import TurndownService from 'turndown'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 const lowlight = createLowlight(common)
+
+// Custom Iframe Node extension to preserve all iframes (Facebook, etc.)
+const IframeNode = Node.create({
+  name: 'iframe',
+  group: 'block',
+  atom: true,
+
+  addAttributes() {
+    return {
+      src: { default: null },
+      width: { default: '100%' },
+      height: { default: '400' },
+      frameborder: { default: '0' },
+      allowfullscreen: { default: true },
+    }
+  },
+
+  parseHTML() {
+    return [{ tag: 'iframe' }]
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return ['iframe', HTMLAttributes]
+  },
+})
 
 interface MarkdownEditorProps {
   content: string
@@ -20,8 +47,22 @@ const turndownService = new TurndownService({
   codeBlockStyle: 'fenced',
 })
 
+// Preserve iframes/videos in markdown
+turndownService.addRule('iframe', {
+  filter: 'iframe',
+  replacement: function (content, node: any) {
+    const src = node.getAttribute('src') || ''
+    const width = node.getAttribute('width') || '100%'
+    const height = node.getAttribute('height') || '400'
+    return `\n<iframe src="${src}" width="${width}" height="${height}" frameborder="0" allowfullscreen></iframe>\n`
+  },
+})
+
 export default function MarkdownEditor({ content, onChange }: MarkdownEditorProps) {
   const previousContentRef = useRef<string>('')
+  const [showVideoModal, setShowVideoModal] = useState(false)
+  const [videoUrl, setVideoUrl] = useState('')
+  const [videoType, setVideoType] = useState<'youtube' | 'iframe'>('youtube')
   
   const editor = useEditor({
     extensions: [
@@ -34,18 +75,34 @@ export default function MarkdownEditor({ content, onChange }: MarkdownEditorProp
       CodeBlockLowlight.configure({
         lowlight,
       }),
+      Youtube.configure({
+        width: 640,
+        height: 480,
+        ccLanguage: 'vi',
+        HTMLAttributes: {
+          class: 'youtube-embed',
+        },
+      }),
+      IframeNode,
     ],
     content: content || '<p>Start writing...</p>',
     immediatelyRender: false,
-    onUpdate: ({ editor }) => {
-      const html = editor.getHTML()
-      const markdown = turndownService.turndown(html)
-      onChange(markdown)
-    },
     editorProps: {
       attributes: {
         class: 'prose prose-lg max-w-none focus:outline-none min-h-[500px] p-6 overflow-wrap-anywhere',
       },
+      transformPastedHTML(html) {
+        // Preserve iframes when pasting
+        return html
+      },
+    },
+    parseOptions: {
+      preserveWhitespace: 'full',
+    },
+    onUpdate: ({ editor }) => {
+      const html = editor.getHTML()
+      const markdown = turndownService.turndown(html)
+      onChange(markdown)
     },
   })
 
@@ -56,6 +113,21 @@ export default function MarkdownEditor({ content, onChange }: MarkdownEditorProp
       previousContentRef.current = content
     }
   }, [content, editor])
+
+  const handleInsertVideo = () => {
+    if (!editor || !videoUrl) return
+
+    if (videoType === 'youtube') {
+      editor.commands.setYoutubeVideo({ src: videoUrl })
+    } else {
+      // Insert iframe as HTML
+      const iframeHtml = `<div class="iframe-wrapper"><iframe src="${videoUrl}" width="100%" height="400" frameborder="0" allowfullscreen></iframe></div>`
+      editor.commands.insertContent(iframeHtml)
+    }
+
+    setVideoUrl('')
+    setShowVideoModal(false)
+  }
 
   if (!editor) {
     return <div className="p-4 text-gray-500">Loading editor...</div>
@@ -161,7 +233,87 @@ export default function MarkdownEditor({ content, onChange }: MarkdownEditorProp
         >
           HR
         </button>
+        <button
+          onClick={() => setShowVideoModal(true)}
+          className="px-3 py-1 rounded text-sm font-medium bg-red-500 text-white hover:bg-red-600 transition-colors"
+        >
+          📹 Video
+        </button>
       </div>
+
+      {/* Video Insert Modal */}
+      {showVideoModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowVideoModal(false)}>
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Insert Video</h3>
+            
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Video Type
+              </label>
+              <div className="flex gap-4">
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    value="youtube"
+                    checked={videoType === 'youtube'}
+                    onChange={() => setVideoType('youtube')}
+                    className="mr-2"
+                  />
+                  <span className="text-gray-700 dark:text-gray-300">YouTube</span>
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    value="iframe"
+                    checked={videoType === 'iframe'}
+                    onChange={() => setVideoType('iframe')}
+                    className="mr-2"
+                  />
+                  <span className="text-gray-700 dark:text-gray-300">Facebook/Other</span>
+                </label>
+              </div>
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                {videoType === 'youtube' ? 'YouTube URL' : 'Embed URL'}
+              </label>
+              <input
+                type="text"
+                value={videoUrl}
+                onChange={(e) => setVideoUrl(e.target.value)}
+                placeholder={videoType === 'youtube' ? 'https://www.youtube.com/watch?v=...' : 'https://www.facebook.com/...'}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-600 focus:border-transparent bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                {videoType === 'youtube' 
+                  ? 'Paste YouTube video URL (e.g., https://www.youtube.com/watch?v=dQw4w9WgXcQ)'
+                  : 'Paste embed iframe src URL from Facebook or other platforms'}
+              </p>
+            </div>
+
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={() => {
+                  setShowVideoModal(false)
+                  setVideoUrl('')
+                }}
+                className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleInsertVideo}
+                disabled={!videoUrl}
+                className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Insert
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Editor Content */}
       <div className="bg-white dark:bg-gray-900 overflow-auto max-h-[700px]">
