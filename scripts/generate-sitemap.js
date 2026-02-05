@@ -78,8 +78,9 @@ function generateSitemap() {
   
   // Category pages
   categories.forEach(category => {
+    const encodedCategory = encodeURIComponent(category.toLowerCase());
     xml += '  <url>\n';
-    xml += `    <loc>${SITE_URL}/category/${category}</loc>\n`;
+    xml += `    <loc>${SITE_URL}/category/${encodedCategory}</loc>\n`;
     xml += `    <lastmod>${now}</lastmod>\n`;
     xml += '    <changefreq>weekly</changefreq>\n';
     xml += '    <priority>0.6</priority>\n';

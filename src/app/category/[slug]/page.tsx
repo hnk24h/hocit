@@ -14,13 +14,15 @@ interface CategoryPageProps {
 export async function generateStaticParams() {
   const categories = getAllCategories()
   return categories.map((category) => ({
-    slug: category.toLowerCase(),
+    slug: encodeURIComponent(category.toLowerCase()),
   }))
 }
 
 // Generate metadata for SEO
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
-  const categoryName = params.slug.charAt(0).toUpperCase() + params.slug.slice(1)
+  const decodedSlug = decodeURIComponent(params.slug)
+  const articles = getArticlesByCategory(decodedSlug)
+  const categoryName = articles.length > 0 ? articles[0].category : decodedSlug
   
   return {
     title: `${categoryName} - Ikagi`,
@@ -29,7 +31,8 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 }
 
 export default function CategoryPage({ params }: CategoryPageProps) {
-  const articles = getArticlesByCategory(params.slug)
+  const decodedSlug = decodeURIComponent(params.slug)
+  const articles = getArticlesByCategory(decodedSlug)
 
   if (articles.length === 0) {
     notFound()

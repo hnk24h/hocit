@@ -74,7 +74,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://ikagi.site'
   const breadcrumbs = [
     { name: 'Trang chủ', url: siteUrl },
-    { name: article.category, url: `${siteUrl}/category/${article.category}` },
+    { name: article.category, url: `${siteUrl}/category/${encodeURIComponent(article.category.toLowerCase())}` },
     { name: article.title, url: `${siteUrl}/articles/${params.slug}` },
   ]
 

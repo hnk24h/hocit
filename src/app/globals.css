@@ -94,3 +94,84 @@ a {
     @apply relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-brand-600 dark:after:bg-brand-400 after:transition-all after:duration-300 hover:after:w-full;
   }
 }
+
+/* TipTap Editor Styles */
+.ProseMirror {
+  @apply focus:outline-none;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.ProseMirror h2 {
+  @apply text-2xl font-bold mt-6 mb-4 text-gray-900 dark:text-gray-100;
+  word-wrap: break-word;
+}
+
+.ProseMirror h3 {
+  @apply text-xl font-bold mt-4 mb-3 text-gray-900 dark:text-gray-100;
+  word-wrap: break-word;
+}
+
+.ProseMirror p {
+  @apply mb-4 text-gray-700 dark:text-gray-300 leading-7;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.ProseMirror ul,
+.ProseMirror ol {
+  @apply mb-4 pl-6 text-gray-700 dark:text-gray-300;
+  word-wrap: break-word;
+}
+
+.ProseMirror ul {
+  @apply list-disc;
+}
+
+.ProseMirror ol {
+  @apply list-decimal;
+}
+
+.ProseMirror li {
+  @apply mb-2 leading-7;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.ProseMirror code {
+  @apply bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm font-mono text-red-600 dark:text-red-400;
+}
+
+.ProseMirror pre {
+  @apply bg-gray-900 dark:bg-gray-800 text-gray-100 p-4 rounded-lg mb-4 overflow-x-auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.ProseMirror pre code {
+  @apply bg-transparent text-gray-100 p-0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.ProseMirror blockquote {
+  @apply border-l-4 border-gray-300 dark:border-gray-600 pl-4 italic text-gray-600 dark:text-gray-400 mb-4;
+  word-wrap: break-word;
+}
+
+.ProseMirror hr {
+  @apply border-t border-gray-300 dark:border-gray-700 my-6;
+}
+
+.ProseMirror a {
+  @apply text-blue-600 dark:text-blue-400 hover:underline;
+}
+
+.ProseMirror strong {
+  @apply font-bold text-gray-900 dark:text-gray-100;
+}
+
+.ProseMirror em {
+  @apply italic;
+}

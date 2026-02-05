@@ -41,7 +41,7 @@ export default function CategoriesPage() {
               return (
                 <Link
                   key={category}
-                  href={`/category/${category.toLowerCase()}`}
+                  href={`/category/${encodeURIComponent(category.toLowerCase())}`}
                   className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow p-6"
                 >
                   <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
