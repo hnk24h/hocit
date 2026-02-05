@@ -1,0 +1,101 @@
+# ROLE
+You are a senior frontend engineer and static-site architect.
+Generate production-ready code based strictly on the requirements below.
+Prefer clarity, simplicity, and static generation.
+
+---
+
+# GOAL
+Build a **technical blog static website** similar to hoclaptrinh.io
+using **Static Site Generation**.
+
+The site must be optimized for:
+- SEO
+- Performance
+- Markdown-based content
+- Zero monthly hosting cost
+
+---
+
+# TECH STACK CONSTRAINTS
+- Framework: **Next.js (Static Generation)**
+  - Use App Router if possible
+  - No server-side runtime features
+- Styling: **Tailwind CSS**
+- Content format: **Markdown (.md or .mdx)**
+- Code highlighting: **PrismJS or Shiki**
+- Deployment target: **Vercel / Netlify**
+- No backend, no database
+
+---
+
+# CORE FEATURES (MUST IMPLEMENT)
+
+## 1. Homepage
+- List latest articles sorted by date (descending)
+- Each article preview shows:
+  - Title
+  - Description
+  - Publish date
+  - Category
+- Fully static
+- Responsive layout
+
+## 2. Article Page
+- Render Markdown/MDX content
+- Support:
+  - Headings (H1–H4)
+  - Tables
+  - Images
+  - Inline code
+  - Code blocks
+- Syntax highlighting for:
+  - SQL
+  - JavaScript
+  - Bash
+- Clean reading layout similar to technical blogs
+
+## 3. Table of Contents (TOC)
+- Auto-generate TOC from H2/H3 headings
+- TOC displayed on article page
+- Anchor links scroll smoothly
+
+## 4. Categories
+- Each article belongs to exactly one category
+- Category pages:
+  - `/category/[slug]`
+  - List all articles in that category
+- Pages must be statically generated
+
+## 5. SEO
+- Clean URLs:
+  `/articles/[slug]`
+- Meta tags:
+  - title
+  - description
+  - OpenGraph tags
+- Generate:
+  - sitemap.xml
+  - robots.txt
+- Lighthouse SEO score target ≥ 90
+
+## 6. Navigation
+- Header:
+  - Home
+  - Categories
+  - About
+- Footer:
+  - Copyright
+  - External Buy Me a Coffee link
+
+---
+
+# CONTENT MODEL
+
+## Article Frontmatter (REQUIRED)
+```yaml
+title: "SQL INSERT Statement"
+description: "Learn how to use INSERT in SQL with examples"
+date: "2026-02-05"
+category: "SQL"
+slug: "sql-insert-statement"

@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 255, 255, 255;
+  --background-end-rgb: 255, 255, 255;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-end-rgb));
+}
+
+/* Prism Syntax Highlighting */
+pre[class*="language-"] {
+  @apply rounded-lg my-6 p-4;
+}
+
+code[class*="language-"] {
+  @apply text-sm;
+}
+
+/* Inline code */
+:not(pre) > code {
+  @apply bg-gray-100 text-red-600 px-1.5 py-0.5 rounded text-sm;
+}
