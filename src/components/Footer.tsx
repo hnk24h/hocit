@@ -45,7 +45,7 @@ export default function Footer() {
               Nếu bạn thấy nội dung hữu ích, hãy ủng hộ chúng tôi!
             </p>
             <a
-              href="https://www.buymeacoffee.com/hocit"
+              href="https://www.buymeacoffee.com/hoankjp93"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-block bg-yellow-500 text-gray-900 px-4 py-2 rounded-lg font-medium hover:bg-yellow-400 transition-colors"

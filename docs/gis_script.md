@@ -1,0 +1,17 @@
+<script src="https://giscus.app/client.js"
+        data-repo="hnk24h/hocit"
+        data-repo-id="R_kgDORJEfKA"
+        data-category="Q&A"
+        data-category-id="DIC_kwDORJEfKM4C16H1"
+        data-mapping="specific"
+        data-term="term = article slug"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="top"
+        data-theme="preferred_color_scheme"
+        data-lang="en"
+        data-loading="lazy"
+        crossorigin="anonymous"
+        async>
+</script>
