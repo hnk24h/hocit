@@ -1,0 +1,122 @@
+{
+  "links": [
+    {
+      "slug": "amazon-laptop",
+      "targetUrl": "https://amazon.com/dp/EXAMPLE?tag=yourtag",
+      "product": "Example Laptop",
+      "merchant": "Amazon",
+      "commission": 4,
+      "category": "Hardware"
+    },
+    {
+      "slug": "udemy-nextjs",
+      "targetUrl": "https://udemy.com/course/nextjs-course/?referralCode=EXAMPLE",
+      "product": "Next.js Complete Course",
+      "merchant": "Udemy",
+      "commission": 20,
+      "category": "Courses"
+    },
+    {
+      "slug": "bluehost",
+      "targetUrl": "https://bluehost.com/track/yourid",
+      "product": "Bluehost Hosting",
+      "merchant": "Bluehost",
+      "commission": 65,
+      "category": "Hosting"
+    }
+  ],
+  "products": [
+    {
+      "slug": "macbook-pro-m4",
+      "name": "MacBook Pro M4",
+      "description": "Powerful laptop for developers with M4 chip, 16GB RAM, 512GB SSD",
+      "image": "https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/mac-macbook-pro-size-unselect-202601-gallery-3?wid=5120&hei=3280&fmt=webp&qlt=90&.v=aXlkdGF0T0RUUVdDckNLaUc0OEE0d2huNHI2YVc1MjYxWkRLa3k4U1gzY1hKYXpvanE2MTFqNkhFOFRiTFg4Z3JUNGJWZ1llU1plZmhBekVhZm5NQnNqbWRhTGpRM2xxVWJRWUhSaDlCQ29QRnE5Qm1RUmpJeUcxUHdpWmVydzlGblJodVFEaGgxMERMNjl1RlVMTnp3&traceId=1",
+      "price": 3500,
+      "currency": "USD",
+      "rating": 4.8,
+      "reviewCount": 1234,
+      "affiliateLink": "amazon-laptop",
+      "pros": [
+        "Extremely fast M4 chip",
+        "Great battery life (18+ hours)",
+        "Beautiful Retina display",
+        "Silent operation",
+        "Excellent build quality"
+      ],
+      "cons": [
+        "Expensive",
+        "Limited ports",
+        "Not upgradeable",
+        "Learning curve for Mac switchers"
+      ],
+      "category": "Laptops",
+      "tags": [
+        "apple",
+        "laptop",
+        "m4",
+        "development"
+      ],
+      "featured": true,
+      "detailedReview": "414141",
+      "createdAt": "2026-02-07T23:13:42.031Z",
+      "updatedAt": "2026-02-07T23:37:52.114Z",
+      "images": [
+        "https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/mac-macbook-pro-size-unselect-202601-gallery-3?wid=5120&hei=3280&fmt=webp&qlt=90&.v=aXlkdGF0T0RUUVdDckNLaUc0OEE0d2huNHI2YVc1MjYxWkRLa3k4U1gzY1hKYXpvanE2MTFqNkhFOFRiTFg4Z3JUNGJWZ1llU1plZmhBekVhZm5NQnNqbWRhTGpRM2xxVWJRWUhSaDlCQ29QRnE5Qm1RUmpJeUcxUHdpWmVydzlGblJodVFEaGgxMERMNjl1RlVMTnp3&traceId=1",
+        "https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/mac-macbook-pro-size-unselect-202601-gallery-3?wid=5120&hei=3280&fmt=webp&qlt=90&.v=aXlkdGF0T0RUUVdDckNLaUc0OEE0d2huNHI2YVc1MjYxWkRLa3k4U1gzY1hKYXpvanE2MTFqNkhFOFRiTFg4Z3JUNGJWZ1llU1plZmhBekVhZm5NQnNqbWRhTGpRM2xxVWJRWUhSaDlCQ29QRnE5Qm1RUmpJeUcxUHdpWmVydzlGblJodVFEaGgxMERMNjl1RlVMTnp3&traceId=1"
+      ]
+    },
+    {
+      "slug": "vscode-extensions-pack",
+      "name": "VS Code Extension Pack",
+      "description": "Complete extension pack for web developers",
+      "price": 0,
+      "currency": "USD",
+      "rating": 4.9,
+      "reviewCount": 5678,
+      "affiliateLink": "udemy-nextjs",
+      "pros": [
+        "Free and open source",
+        "Regular updates",
+        "Large community",
+        "Highly customizable"
+      ],
+      "cons": [
+        "Can be slow with many extensions",
+        "Steep learning curve for beginners"
+      ],
+      "category": "Tools",
+      "tags": [
+        "vscode",
+        "extensions",
+        "development"
+      ],
+      "featured": true,
+      "image": "https://www.bing.com/aclick?ld=e8YYTGu6XFpl5a_BZ17OWfdzVUCUzAVPyCXv1-FnmaRAAfvJRe0QoxZUirOl1nMnctmsrYoSdcDsgdcwmX2AHF51rzAb3ZerN_MyRJtr9SSuGqNyoINvPS4PwwHqAxyRBuswjIn4ChviRXS9NkCsZfeG7OI3nSS6IY4dy-ZvY334yxkZSbdyCLvNiCx_BSFb_SWeGLXFYvj6t22OCCISPh-_-1IXU&u=aHR0cHMlM2ElMmYlMmZ3d3cuYmFja21hcmtldC5jby5qcCUyZmphLWpwJTJmcCUyZm1hY2Jvb2stcHJvLTEzLTIwMjAtbTEtOC04LWdwdS04Z2ItcmFtLXNzZC0yNTZnYi1qaXMlMmY4MzU1ZGI0YS1kZjRhLTQ3MDQtYmM1Zi04MGI5N2JiNmExOGYlM2Ztc2Nsa2lkJTNkYTkzNzA5ZDIzZGUyMTUyODNmN2U2MDU1ODIwZDkxMzAlMjZ1dG1fc291cmNlJTNkYmluZyUyNnV0bV9tZWRpdW0lM2RjcGMlMjZ1dG1fY2FtcGFpZ24lM2RKUF9TQV9TSE9QX01fR0VOX0FsbCUyNTIwUHJvZHVjdHNfUE1BWCUyNnV0bV90ZXJtJTNkMjMzMTAzMzM3MDc3NDI2OSUyNnV0bV9jb250ZW50JTNkTWFjYm9vaw&rlid=a93709d23de215283f7e6055820d9130&ntb=1"
+    },
+    {
+      "slug": "iphone-17-pro",
+      "name": "Iphone 17 pro",
+      "description": "aaaaaaaaaaaa",
+      "category": "Iphone",
+      "affiliateLink": "",
+      "pros": [],
+      "cons": [],
+      "tags": [],
+      "featured": false,
+      "price": 25000,
+      "rating": 4.7
+    }
+  ],
+  "deals": [
+    {
+      "title": "Bluehost Black Friday - 70% OFF",
+      "description": "Get started with web hosting for just $2.95/month",
+      "code": "BLACKFRIDAY70",
+      "discount": "70% off",
+      "affiliateLink": "bluehost",
+      "startDate": "2026-11-01",
+      "endDate": "2026-12-31",
+      "isActive": true
+    }
+  ]
+}

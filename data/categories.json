@@ -1,0 +1,53 @@
+{
+  "categories": [
+    {
+      "slug": "laptop",
+      "name": "Laptop",
+      "icon": "💻",
+      "description": "Laptop cho lập trình viên, designer và gaming",
+      "count": 0
+    },
+    {
+      "slug": "course",
+      "name": "Khóa học",
+      "icon": "📚",
+      "description": "Khóa học online về lập trình, design, marketing",
+      "count": 0
+    },
+    {
+      "slug": "software",
+      "name": "Software",
+      "icon": "⚡",
+      "description": "Phần mềm và công cụ cho developer",
+      "count": 0
+    },
+    {
+      "slug": "tools",
+      "name": "Công cụ Dev",
+      "icon": "🛠️",
+      "description": "IDE, editor, debugging tools",
+      "count": 0
+    },
+    {
+      "slug": "hosting",
+      "name": "Hosting",
+      "icon": "🌐",
+      "description": "Web hosting, VPS, cloud services",
+      "count": 0
+    },
+    {
+      "slug": "design",
+      "name": "Design",
+      "icon": "🎨",
+      "description": "Design tools, templates, resources",
+      "count": 0
+    },
+    {
+      "slug": "marketing",
+      "name": "Marketing",
+      "icon": "📊",
+      "description": "Marketing tools, SEO, analytics",
+      "count": 0
+    }
+  ]
+}

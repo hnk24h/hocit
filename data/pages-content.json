@@ -1,0 +1,48 @@
+{
+  "homepage": {
+    "hero": {
+      "badge": "Top #1 Affiliate Hub Việt Nam",
+      "title": "Khám phá sản phẩm tốt nhất",
+      "subtitle": "Tiết kiệm đến 70%",
+      "description": "Hàng trăm sản phẩm chất lượng, deals hot mỗi ngày, mã giảm giá độc quyền và review chi tiết từ chuyên gia"
+    },
+    "stats": {
+      "products": "200+",
+      "deals": "Active",
+      "partners": "50+",
+      "users": "10K+"
+    },
+    "benefits": [
+      {
+        "icon": "🎯",
+        "title": "Review trung thực",
+        "description": "Đánh giá chi tiết, khách quan từ đội ngũ chuyên gia. Không bao giờ giấu nhẹm nhược điểm."
+      },
+      {
+        "icon": "💰",
+        "title": "Tiết kiệm tối đa",
+        "description": "Deals độc quyền, mã giảm giá đặc biệt. So sánh giá thông minh giúp bạn mua đúng lúc."
+      },
+      {
+        "icon": "🔒",
+        "title": "An toàn & Uy tín",
+        "description": "Chỉ hợp tác với các thương hiệu uy tín. Đảm bảo quyền lợi người dùng tối đa."
+      }
+    ],
+    "newsletter": {
+      "title": "Nhận deals hot mỗi tuần",
+      "description": "Đăng ký để không bỏ lỡ các deals độc quyền, mã giảm giá đặc biệt và review sản phẩm mới nhất"
+    }
+  },
+  "about": {
+    "title": "Về chúng tôi",
+    "description": "Affiliate Hub là nền tảng affiliate marketing hàng đầu Việt Nam",
+    "content": "Chúng tôi cam kết mang đến những đánh giá trung thực nhất về sản phẩm và dịch vụ."
+  },
+  "contact": {
+    "title": "Liên hệ với chúng tôi",
+    "description": "Chúng tôi luôn sẵn sàng lắng nghe và hỗ trợ bạn",
+    "email": "contact@affiliatehub.com",
+    "phone": "+84 123 456 789"
+  }
+}
