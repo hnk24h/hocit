@@ -20,7 +20,17 @@ function EditorContent() {
   const [content, setContent] = useState('')
   const [markdown, setMarkdown] = useState('')
   const [loading, setLoading] = useState(false)
+  const [publishing, setPublishing] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [categories, setCategories] = useState<Array<{ slug: string; name: string; icon: string }>>([])
+  const [autoSlug, setAutoSlug] = useState(true) // Track if slug should auto-generate
+  const [previewMode, setPreviewMode] = useState(false) // Toggle between markdown and HTML preview
+  const [previewHtml, setPreviewHtml] = useState('')
+
+  // Load categories on mount
+  useEffect(() => {
+    loadCategories()
+  }, [])
 
   // Load existing post if slug is provided
   useEffect(() => {
@@ -28,6 +38,48 @@ function EditorContent() {
       loadPost(slug)
     }
   }, [slug])
+
+  // Auto-generate slug from title
+  const generateSlug = (title: string): string => {
+    return title
+      .toLowerCase()
+      .normalize('NFD') // Normalize Vietnamese characters
+      .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
+      .replace(/đ/g, 'd')
+      .replace(/Đ/g, 'd')
+      .replace(/[^a-z0-9\s-]/g, '') // Remove special chars
+      .replace(/\s+/g, '-') // Replace spaces with hyphens
+      .replace(/-+/g, '-') // Remove duplicate hyphens
+      .replace(/^-|-$/g, '') // Remove leading/trailing hyphens
+  }
+
+  const loadCategories = async () => {
+    try {
+      const response = await fetch('/api/admin/categories')
+      const data = await response.json()
+      if (response.ok && data.success) {
+        setCategories(data.categories || [])
+      }
+    } catch (error) {
+      console.error('Failed to load categories:', error)
+    }
+  }
+
+  // Update preview HTML when markdown changes
+  useEffect(() => {
+    if (markdown && previewMode) {
+      const html = marked.parse(markdown) as string
+      setPreviewHtml(html)
+    }
+  }, [markdown, previewMode])
+
+  const handlePreview = () => {
+    if (!previewMode && markdown) {
+      const html = marked.parse(markdown) as string
+      setPreviewHtml(html)
+    }
+    setPreviewMode(!previewMode)
+  }
 
   const loadPost = async (slug: string) => {
     setLoading(true)
@@ -45,16 +97,20 @@ function EditorContent() {
           description: post.description,
         })
         
+        // Disable auto-slug when editing existing post
+        setAutoSlug(false)
+        
         // Convert markdown to HTML for editor display
-        const html = await marked.parse(post.content)
+        const html = marked.parse(post.content) as string
         setContent(html)
         setMarkdown(post.content)
-        setMessage({ type: 'success', text: 'Post loaded successfully' })
+        setMessage({ type: 'success', text: '✅ Bài viết đã được tải thành công' })
       } else {
-        setMessage({ type: 'error', text: data.error || 'Failed to load post' })
+        setMessage({ type: 'error', text: `❌ ${data.error || 'Không thể tải bài viết'}` })
       }
     } catch (error) {
-      setMessage({ type: 'error', text: 'Network error while loading post' })
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error'
+      setMessage({ type: 'error', text: `❌ Lỗi mạng: ${errorMsg}` })
     } finally {
       setLoading(false)
     }
@@ -62,8 +118,24 @@ function EditorContent() {
 
   const handleSave = async () => {
     // Validate
-    if (!formData.title || !formData.slug || !formData.category || !formData.description) {
-      setMessage({ type: 'error', text: 'Please fill in all required fields' })
+    if (!formData.title) {
+      setMessage({ type: 'error', text: '❌ Vui lòng nhập tiêu đề bài viết' })
+      return
+    }
+    if (!formData.slug) {
+      setMessage({ type: 'error', text: '❌ Slug không được để trống (tự động tạo từ tiêu đề)' })
+      return
+    }
+    if (!formData.category) {
+      setMessage({ type: 'error', text: '❌ Vui lòng chọn danh mục' })
+      return
+    }
+    if (!formData.description) {
+      setMessage({ type: 'error', text: '❌ Vui lòng nhập mô tả bài viết' })
+      return
+    }
+    if (!markdown || markdown.trim() === '') {
+      setMessage({ type: 'error', text: '❌ Nội dung bài viết không được để trống' })
       return
     }
 
@@ -85,14 +157,95 @@ function EditorContent() {
       const data = await response.json()
 
       if (response.ok) {
-        setMessage({ type: 'success', text: `Post saved: ${data.slug}.md` })
+        const articleUrl = `/articles/${data.slug}`
+        setMessage({ 
+          type: 'success', 
+          text: `✅ Đã lưu thành công: ${data.slug}.md. Đang mở bài viết...` 
+        })
+        // Keep autoSlug disabled after first save
+        setAutoSlug(false)
+        // Open article in new tab
+        setTimeout(() => {
+          window.open(articleUrl, '_blank')
+        }, 500)
       } else {
-        setMessage({ type: 'error', text: data.error || 'Failed to save post' })
+        // Show specific error from API
+        const errorDetail = data.details ? ` (Chi tiết: ${data.details})` : ''
+        setMessage({ 
+          type: 'error', 
+          text: `❌ ${data.error || 'Lỗi khi lưu bài viết'}${errorDetail}` 
+        })
       }
     } catch (error) {
-      setMessage({ type: 'error', text: 'Network error while saving post' })
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error'
+      setMessage({ 
+        type: 'error', 
+        text: `❌ Lỗi mạng: Không thể kết nối đến server. ${errorMsg}` 
+      })
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handlePublish = async () => {
+    // Check if post is saved
+    if (!formData.slug || !formData.title) {
+      setMessage({ 
+        type: 'error', 
+        text: '❌ Vui lòng lưu bài viết trước khi publish' 
+      })
+      return
+    }
+
+    const confirmed = confirm(
+      `🚀 Publish bài viết "${formData.title}"?\n\n` +
+      `Bài viết sẽ được:\n` +
+      `1. Commit vào git\n` +
+      `2. Push lên GitHub\n` +
+      `3. Deploy lên Vercel\n\n` +
+      `Bạn có chắc chắn muốn tiếp tục?`
+    )
+
+    if (!confirmed) return
+
+    setPublishing(true)
+    setMessage(null)
+
+    try {
+      const response = await fetch('/api/posts/publish', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          slug: formData.slug,
+          title: formData.title,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setMessage({ 
+          type: 'success', 
+          text: `🚀 Đã publish thành công! Bài viết "${formData.title}" đang được deploy lên Vercel.` 
+        })
+      } else {
+        const errorDetail = data.details ? `\n\nChi tiết: ${data.details}` : ''
+        const stderr = data.stderr ? `\n\nError log: ${data.stderr}` : ''
+        setMessage({ 
+          type: 'error', 
+          text: `❌ ${data.error || 'Lỗi khi publish'}${errorDetail}${stderr}` 
+        })
+      }
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error'
+      setMessage({ 
+        type: 'error', 
+        text: `❌ Lỗi mạng: Không thể kết nối đến server. ${errorMsg}` 
+      })
+    } finally {
+      setPublishing(false)
     }
   }
 
@@ -113,13 +266,29 @@ function EditorContent() {
                 {slug ? 'Edit Post' : 'New Post'}
               </h1>
             </div>
-            <button
-              onClick={handleSave}
-              disabled={loading}
-              className="px-6 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors"
-            >
-              {loading ? 'Saving...' : 'Save Post'}
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={handlePreview}
+                className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium transition-colors"
+              >
+                {previewMode ? '📝 Markdown' : '👁️ Preview'}
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={loading || publishing}
+                className="px-6 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors"
+              >
+                {loading ? 'Saving...' : '💾 Save Post'}
+              </button>
+              <button
+                onClick={handlePublish}
+                disabled={loading || publishing || !formData.slug}
+                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors shadow-lg"
+                title={!formData.slug ? 'Save the post first before publishing' : 'Deploy to production'}
+              >
+                {publishing ? '🚀 Publishing...' : '🚀 Publish'}
+              </button>
+            </div>
           </div>
 
           {/* Message */}
@@ -150,22 +319,37 @@ function EditorContent() {
               <input
                 type="text"
                 value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                onChange={(e) => {
+                  const newTitle = e.target.value
+                  setFormData({ 
+                    ...formData, 
+                    title: newTitle,
+                    // Auto-generate slug if enabled
+                    ...(autoSlug && { slug: generateSlug(newTitle) })
+                  })
+                }}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-600 focus:border-transparent bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
-                placeholder="Post title"
+                placeholder="Tiêu đề bài viết"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Slug *
+                Slug * {autoSlug && <span className="text-xs text-gray-500">(tự động từ tiêu đề)</span>}
               </label>
               <input
                 type="text"
                 value={formData.slug}
-                onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                onChange={(e) => {
+                  setFormData({ ...formData, slug: e.target.value })
+                  // Disable auto-slug when user manually edits
+                  if (autoSlug) setAutoSlug(false)
+                }}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-600 focus:border-transparent bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
                 placeholder="post-slug"
               />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                URL: /articles/{formData.slug || 'slug'}
+              </p>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -180,15 +364,33 @@ function EditorContent() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Category *
+                Category * <span className="text-xs text-gray-500">(chọn hoặc nhập mới)</span>
               </label>
               <input
                 type="text"
+                list="categories-list"
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-600 focus:border-transparent bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
-                placeholder="e.g., JavaScript, SQL, React"
+                placeholder="Chọn hoặc gõ tên danh mục..."
               />
+              <datalist id="categories-list">
+                {categories.map((cat) => (
+                  <option key={cat.slug} value={cat.slug}>
+                    {cat.icon} {cat.name}
+                  </option>
+                ))}
+              </datalist>
+              {categories.length === 0 && (
+                <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
+                  ⚠️ Chưa có danh mục. Bạn có thể nhập tên danh mục mới.
+                </p>
+              )}
+              {categories.length > 0 && (
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  💡 Danh mục có sẵn: {categories.map(c => c.slug).join(', ')}
+                </p>
+              )}
             </div>
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -213,15 +415,27 @@ function EditorContent() {
             <MarkdownEditor content={content} onChange={setMarkdown} />
           </div>
 
-          {/* Right: Markdown Preview */}
+          {/* Right: Preview */}
           <div>
             <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-3">
-              Markdown Output
+              {previewMode ? '👁️ Preview (HTML Render)' : '📝 Markdown Output'}
             </h2>
-            <div className="border border-gray-300 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900 p-6 min-h-[500px] max-h-[700px] overflow-auto">
-              <pre className="whitespace-pre-wrap break-words font-mono text-sm leading-relaxed text-gray-800 dark:text-gray-200">
-                {markdown || 'Start typing to see markdown output...'}
-              </pre>
+            <div className="border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 p-6 min-h-[500px] max-h-[700px] overflow-auto">
+              {previewMode ? (
+                <article 
+                  className="prose prose-slate dark:prose-invert max-w-none
+                    prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl
+                    prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline
+                    prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-code:px-1 prose-code:py-0.5 prose-code:rounded
+                    prose-pre:bg-gray-900 prose-pre:text-gray-100
+                    prose-img:rounded-lg prose-img:shadow-lg"
+                  dangerouslySetInnerHTML={{ __html: previewHtml || '<p class="text-gray-400">Start typing to see preview...</p>' }}
+                />
+              ) : (
+                <pre className="whitespace-pre-wrap break-words font-mono text-sm leading-relaxed text-gray-800 dark:text-gray-200">
+                  {markdown || 'Start typing to see markdown output...'}
+                </pre>
+              )}
             </div>
           </div>
         </div>
