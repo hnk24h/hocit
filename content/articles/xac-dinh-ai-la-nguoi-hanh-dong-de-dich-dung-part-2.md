@@ -2,7 +2,7 @@
 title: "XÁC ĐỊNH “AI LÀ NGƯỜI HÀNH ĐỘNG” ĐỂ DỊCH ĐÚNG Part 2"
 description: "Các mẫu câu thể hiện người nghe là người hành động"
 date: "2026-02-09"
-category: "Học Tiếng Nhật"
+category: "course"
 slug: "xac-dinh-ai-la-nguoi-hanh-dong-de-dich-dung-part-2"
 ---
 
