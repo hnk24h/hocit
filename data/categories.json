@@ -15,6 +15,27 @@
       "count": 0
     },
     {
+      "slug": "topik",
+      "name": "Khóa học Topik",
+      "icon": "📚",
+      "description": "Khóa học online về Topik từ cơ bản đến nâng cao",
+      "count": 0
+    },
+    {
+      "slug": "hoc-tieng-nhat",
+      "name": "Khóa học Tiếng Nhật",
+      "icon": "📚",
+      "description": "Khóa học online về Tiếng Nhật từ cơ bản đến nâng cao",
+      "count": 0
+    },
+    {
+      "slug": "hoc-chung-chi-pmp",
+      "name": "Khóa học Chứng Chỉ PMP",
+      "icon": "📚",
+      "description": "Khóa học online về Chứng Chỉ PMP từ cơ bản đến nâng cao",
+      "count": 0
+    },
+    {
       "slug": "software",
       "name": "Software",
       "icon": "⚡",

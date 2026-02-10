@@ -20,11 +20,12 @@ export default function Header() {
       const day = String(now.getDate()).padStart(2, '0')
       const hours = String(now.getHours()).padStart(2, '0')
       const minutes = String(now.getMinutes()).padStart(2, '0')
-      setCurrentTime(`${month}/${day} ${hours}:${minutes}`)
+      const seconds = String(now.getSeconds()).padStart(2, '0')
+      setCurrentTime(`${month}/${day} ${hours}:${minutes}:${seconds}`)
     }
 
     updateTime() // Initial update
-    const interval = setInterval(updateTime, 60000) // Update every minute
+    const interval = setInterval(updateTime, 1000) // Update every second
 
     return () => clearInterval(interval)
   }, [])
@@ -162,15 +163,6 @@ export default function Header() {
                     </Link>
                     <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
                     <Link 
-                      href="/admin"
-                      className="block px-4 py-3 text-sm text-brand-600 dark:text-brand-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors font-semibold"
-                      role="menuitem"
-                      onClick={() => setResourcesOpen(false)}
-                    >
-                      🎛️ Admin Panel
-                    </Link>
-                    <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
-                    <Link 
                       href="/affiliate-disclosure"
                       className="block px-4 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                       role="menuitem"
@@ -187,7 +179,7 @@ export default function Header() {
                   href="/about" 
                   className="text-gray-700 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 font-medium transition-colors relative link-underline"
                 >
-                  Giới thiệu
+                  Về Chúng Tôi
                 </Link>
               </li>
             </ul>
@@ -197,7 +189,7 @@ export default function Header() {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span>{currentTime || '00/00 00:00'}</span>
+              <span>{currentTime || '00/00 00:00:00'}</span>
             </div>
 
             <ThemeToggle />
@@ -256,15 +248,6 @@ export default function Header() {
               </li>
               <li>
                 <Link 
-                  href="/categories" 
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block text-gray-700 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 font-medium transition-colors py-2"
-                >
-                  Danh mục
-                </Link>
-              </li>
-              <li>
-                <Link 
                   href="/products" 
                   onClick={() => setMobileMenuOpen(false)}
                   className="block text-gray-700 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 font-medium transition-colors py-2"
@@ -314,13 +297,6 @@ export default function Header() {
                   >
                     ⚖️ Laptop Comparison
                   </Link>
-                  <Link 
-                    href="/admin" 
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="block text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 font-semibold transition-colors py-2 pl-4"
-                  >
-                    🎛️ Admin Panel
-                  </Link>
                 </div>
               </li>
 
@@ -330,7 +306,7 @@ export default function Header() {
                   onClick={() => setMobileMenuOpen(false)}
                   className="block text-gray-700 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 font-medium transition-colors py-2"
                 >
-                  Giới thiệu
+                  Về Chúng Tôi
                 </Link>
               </li>
               
