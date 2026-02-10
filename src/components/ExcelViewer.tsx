@@ -39,6 +39,9 @@ export default function ExcelViewer({ fileUrl }: ExcelViewerProps) {
   const [error, setError] = useState<string>('')
   const [searchQuery, setSearchQuery] = useState('')
   const [zoom, setZoom] = useState(100)
+  const [editMode, setEditMode] = useState(false)
+  const [editedData, setEditedData] = useState<{ [sheetIndex: number]: any[][] }>({})
+  const [loadedFromCache, setLoadedFromCache] = useState(false)
 
   useEffect(() => {
     loadExcelFile()
@@ -58,46 +61,72 @@ export default function ExcelViewer({ fileUrl }: ExcelViewerProps) {
       const isExternalUrl = processedUrl.startsWith('http://') || processedUrl.startsWith('https://')
       
       let arrayBuffer: ArrayBuffer | null = null
+      let shouldCache = false
+      let fromCache = false
       
       if (isExternalUrl) {
-        // Try with proxy first
+        // Check if file is already cached
         try {
-          const proxyUrl = `/api/proxy?url=${encodeURIComponent(processedUrl)}`
-          console.log('Trying proxy:', proxyUrl)
+          const cacheCheck = await fetch(`/api/excel/save-cache?url=${encodeURIComponent(fileUrl)}`)
+          const cacheData = await cacheCheck.json()
           
-          const proxyResponse = await fetch(proxyUrl)
-          console.log('Proxy response status:', proxyResponse.status)
-          
-          if (proxyResponse.ok) {
-            arrayBuffer = await proxyResponse.arrayBuffer()
-            console.log('Loaded via proxy, size:', arrayBuffer.byteLength)
-          } else {
-            const errorData = await proxyResponse.json().catch(() => ({}))
-            console.warn('Proxy failed:', errorData)
-            throw new Error('Proxy request failed')
-          }
-        } catch (proxyErr) {
-          console.warn('Proxy failed, trying direct fetch...', proxyErr)
-          
-          // Fallback: Try direct fetch (may fail due to CORS)
-          try {
-            const directResponse = await fetch(processedUrl, {
-              mode: 'cors',
-              credentials: 'omit',
-            })
-            
-            if (directResponse.ok) {
-              arrayBuffer = await directResponse.arrayBuffer()
-              console.log('Loaded via direct fetch, size:', arrayBuffer.byteLength)
-            } else {
-              throw new Error(`Direct fetch failed: ${directResponse.status}`)
+          if (cacheData.cached && cacheData.localPath) {
+            console.log('📦 Found cached file:', cacheData.localPath)
+            // Load from cache
+            const cachedResponse = await fetch(cacheData.localPath)
+            if (cachedResponse.ok) {
+              arrayBuffer = await cachedResponse.arrayBuffer()
+              console.log('✅ Loaded from cache, size:', arrayBuffer.byteLength)
+              fromCache = true
             }
-          } catch (directErr) {
-            console.error('Direct fetch also failed:', directErr)
-            throw new Error(
-              'Cannot load file. Google Sheets requires "Publish to web". ' +
-              'Go to: File → Share → Publish to web → Publish (select Microsoft Excel format)'
-            )
+          }
+        } catch (cacheErr) {
+          console.log('Cache check failed, will fetch from URL:', cacheErr)
+        }
+
+        // If not cached or cache failed, fetch from URL
+        if (!arrayBuffer) {
+          shouldCache = true
+          
+          // Try with proxy first
+          try {
+            const proxyUrl = `/api/proxy?url=${encodeURIComponent(processedUrl)}`
+            console.log('Trying proxy:', proxyUrl)
+            
+            const proxyResponse = await fetch(proxyUrl)
+            console.log('Proxy response status:', proxyResponse.status)
+            
+            if (proxyResponse.ok) {
+              arrayBuffer = await proxyResponse.arrayBuffer()
+              console.log('Loaded via proxy, size:', arrayBuffer.byteLength)
+            } else {
+              const errorData = await proxyResponse.json().catch(() => ({}))
+              console.warn('Proxy failed:', errorData)
+              throw new Error('Proxy request failed')
+            }
+          } catch (proxyErr) {
+            console.warn('Proxy failed, trying direct fetch...', proxyErr)
+            
+            // Fallback: Try direct fetch (may fail due to CORS)
+            try {
+              const directResponse = await fetch(processedUrl, {
+                mode: 'cors',
+                credentials: 'omit',
+              })
+              
+              if (directResponse.ok) {
+                arrayBuffer = await directResponse.arrayBuffer()
+                console.log('Loaded via direct fetch, size:', arrayBuffer.byteLength)
+              } else {
+                throw new Error(`Direct fetch failed: ${directResponse.status}`)
+              }
+            } catch (directErr) {
+              console.error('Direct fetch also failed:', directErr)
+              throw new Error(
+                'Cannot load file. Google Sheets requires "Publish to web". ' +
+                'Go to: File → Share → Publish to web → Publish (select Microsoft Excel format)'
+              )
+            }
           }
         }
       } else {
@@ -125,12 +154,54 @@ export default function ExcelViewer({ fileUrl }: ExcelViewerProps) {
 
       const allSheets = workbook.SheetNames.map((name) => {
         const worksheet = workbook.Sheets[name]
-        const data = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as any[][]
+        let data = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' }) as any[][]
+        
+        // Normalize: ensure all rows have same number of columns (fix empty cell borders)
+        if (data.length > 0) {
+          const maxCols = Math.max(...data.map(row => row.length))
+          data = data.map(row => {
+            const normalizedRow = [...row]
+            while (normalizedRow.length < maxCols) {
+              normalizedRow.push('')
+            }
+            return normalizedRow
+          })
+        }
+        
         return { name, data }
       })
 
       setSheets(allSheets)
+      setEditedData({})
+      setLoadedFromCache(fromCache)
       setLoading(false)
+
+      // Cache file if it was fetched from external URL
+      if (shouldCache && arrayBuffer) {
+        try {
+          console.log('💾 Caching file for future use...')
+          const arrayData = Array.from(new Uint8Array(arrayBuffer))
+          
+          const cacheResponse = await fetch('/api/excel/save-cache', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              url: fileUrl,
+              arrayBuffer: arrayData
+            })
+          })
+
+          const cacheResult = await cacheResponse.json()
+          if (cacheResult.success) {
+            console.log('✅ File cached successfully:', cacheResult.localPath)
+          } else {
+            console.warn('⚠️ Caching failed:', cacheResult.error)
+          }
+        } catch (cacheErr) {
+          console.warn('Cache save failed:', cacheErr)
+          // Don't show error to user, caching is optional
+        }
+      }
     } catch (err) {
       console.error('Excel load error:', err)
       setError(err instanceof Error ? err.message : 'Failed to load Excel file')
@@ -138,26 +209,71 @@ export default function ExcelViewer({ fileUrl }: ExcelViewerProps) {
     }
   }
 
+  const getCurrentSheetData = () => {
+    return editedData[activeSheet] || sheets[activeSheet]?.data || []
+  }
+
+  const handleCellEdit = (rowIndex: number, cellIndex: number, value: string) => {
+    const currentData = getCurrentSheetData()
+    const newData = currentData.map((row, rIdx) => 
+      rIdx === rowIndex 
+        ? row.map((cell, cIdx) => cIdx === cellIndex ? value : cell)
+        : [...row]
+    )
+    
+    setEditedData(prev => ({
+      ...prev,
+      [activeSheet]: newData
+    }))
+  }
+
   const exportToCSV = () => {
     if (sheets.length === 0) return
 
+    const currentData = getCurrentSheetData()
     const sheet = sheets[activeSheet]
-    const csv = sheet.data.map((row) => row.join(',')).join('\n')
+    const csv = currentData.map((row) => row.join(',')).join('\n')
     const blob = new Blob([csv], { type: 'text/csv' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `${sheet.name}.csv`
+    a.download = `${sheet.name}${editMode ? '_edited' : ''}.csv`
     a.click()
   }
 
+  const exportToExcel = () => {
+    if (sheets.length === 0) return
+
+    const wb = XLSX.utils.book_new()
+    
+    sheets.forEach((sheet, index) => {
+      const data = editedData[index] || sheet.data
+      const ws = XLSX.utils.aoa_to_sheet(data)
+      XLSX.utils.book_append_sheet(wb, ws, sheet.name)
+    })
+
+    XLSX.writeFile(wb, `edited_${Date.now()}.xlsx`)
+  }
+
+  const saveChanges = () => {
+    if (Object.keys(editedData).length === 0) {
+      alert('Không có thay đổi nào để lưu')
+      return
+    }
+    
+    exportToExcel()
+    alert('✅ File Excel đã được tải xuống!\n\n💡 Để sync lên Google Sheets:\n1. Mở Google Sheets\n2. File → Import → Upload\n3. Chọn file vừa tải xuống')
+  }
+
+  const currentData = getCurrentSheetData()
+
   const filteredData = searchQuery
-    ? sheets[activeSheet]?.data.filter((row) =>
+    ? currentData.filter((row) =>
         row.some((cell) =>
           String(cell).toLowerCase().includes(searchQuery.toLowerCase())
         )
       )
-    : sheets[activeSheet]?.data
+    : currentData
 
   if (loading) {
     return (
@@ -239,7 +355,49 @@ export default function ExcelViewer({ fileUrl }: ExcelViewerProps) {
           </div>
 
           {/* Controls */}
-          <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap">
+            {/* Cache Indicator */}
+            {loadedFromCache && (
+              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded text-xs font-medium border border-green-300 dark:border-green-700">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span>Cached</span>
+              </div>
+            )}
+
+            {/* Edit Mode Toggle */}
+            <button
+              onClick={() => setEditMode(!editMode)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-sm font-medium transition-colors ${
+                editMode 
+                  ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+              }`}
+              title="Bật/tắt chế độ chỉnh sửa"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              <span className="hidden sm:inline">{editMode ? 'Đang sửa' : 'Sửa'}</span>
+            </button>
+
+            {/* Save Button (visible when edited) */}
+            {Object.keys(editedData).length > 0 && (
+              <button
+                onClick={saveChanges}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-green-600 text-white rounded text-sm font-medium hover:bg-green-700 transition-colors"
+                title="Lưu thay đổi"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                </svg>
+                <span className="hidden sm:inline">Lưu Excel</span>
+              </button>
+            )}
+
+            <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 hidden sm:block"></div>
+
             <button
               onClick={() => setZoom(Math.max(50, zoom - 10))}
               className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
@@ -263,7 +421,7 @@ export default function ExcelViewer({ fileUrl }: ExcelViewerProps) {
             </button>
             <button
               onClick={exportToCSV}
-              className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition-colors"
+              className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-gray-600 text-white rounded text-sm hover:bg-gray-700 transition-colors"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -287,6 +445,17 @@ export default function ExcelViewer({ fileUrl }: ExcelViewerProps) {
 
       {/* Sheet Content */}
       <div className="flex-1 overflow-auto p-2 sm:p-4">
+        {editMode && (
+          <div className="mb-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+            <p className="text-blue-900 dark:text-blue-100 text-sm font-medium">
+              ✏️ Chế độ chỉnh sửa: Click vào ô để sửa nội dung
+            </p>
+            <p className="text-blue-700 dark:text-blue-300 text-xs mt-1">
+              💡 Sau khi sửa xong, click "Lưu Excel" để tải file xuống, rồi upload lên Google Sheets
+            </p>
+          </div>
+        )}
+        
         {filteredData && filteredData.length > 0 ? (
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
             <div className="overflow-x-auto">
@@ -300,14 +469,32 @@ export default function ExcelViewer({ fileUrl }: ExcelViewerProps) {
                       key={rowIndex}
                       className={rowIndex === 0 ? 'bg-gray-100 dark:bg-gray-700 font-semibold' : ''}
                     >
-                      {row.map((cell, cellIndex) => (
-                        <td
-                          key={cellIndex}
-                          className="border border-gray-300 dark:border-gray-600 px-3 py-2 text-gray-900 dark:text-gray-100"
-                        >
-                          {String(cell || '')}
-                        </td>
-                      ))}
+                      {row.map((cell, cellIndex) => {
+                        const cellValue = String(cell || '')
+                        
+                        return editMode ? (
+                          <td
+                            key={cellIndex}
+                            className="border border-gray-300 dark:border-gray-600 p-0"
+                          >
+                            <input
+                              type="text"
+                              value={cellValue}
+                              onChange={(e) => handleCellEdit(rowIndex, cellIndex, e.target.value)}
+                              className="w-full h-full px-3 py-2 bg-transparent text-gray-900 dark:text-gray-100 focus:bg-yellow-50 dark:focus:bg-yellow-900/20 focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[80px]"
+                              style={{ minHeight: '38px' }}
+                            />
+                          </td>
+                        ) : (
+                          <td
+                            key={cellIndex}
+                            className="border border-gray-300 dark:border-gray-600 px-3 py-2 text-gray-900 dark:text-gray-100 min-w-[80px]"
+                            style={{ minHeight: '38px' }}
+                          >
+                            {cellValue}
+                          </td>
+                        )
+                      })}
                     </tr>
                   ))}
                 </tbody>
@@ -324,11 +511,21 @@ export default function ExcelViewer({ fileUrl }: ExcelViewerProps) {
       {/* Footer Info */}
       <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 py-2">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs text-gray-500 dark:text-gray-400">
-          <div>
-            {filteredData?.length || 0} rows × {filteredData?.[0]?.length || 0} columns
+          <div className="flex items-center gap-3">
+            <span>{filteredData?.length || 0} rows × {filteredData?.[0]?.length || 0} columns</span>
+            {Object.keys(editedData).length > 0 && (
+              <span className="text-orange-600 dark:text-orange-400 font-medium">
+                ⚠️ Có thay đổi chưa lưu
+              </span>
+            )}
           </div>
-          <div className="hidden sm:block">
-            💡 Tip: Dùng CSV export để mở trong Excel
+          <div>
+            {editMode 
+              ? '💡 Click "Lưu Excel" để tải file đã chỉnh sửa' 
+              : loadedFromCache
+                ? '⚡ File được load từ cache (nhanh hơn)'
+                : '💡 Bật chế độ "Sửa" để chỉnh sửa dữ liệu'
+            }
           </div>
         </div>
       </div>

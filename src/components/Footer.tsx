@@ -88,9 +88,8 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/deals" className="hover:text-white transition-colors flex items-center gap-2 touch-target">
+                <Link href="/deals" className="hover:text-white transition-colors">
                   🔥 Deals
-                  <span className="badge-hot">HOT</span>
                 </Link>
               </li>
               <li>

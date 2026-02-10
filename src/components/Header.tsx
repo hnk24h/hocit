@@ -8,8 +8,26 @@ import { useState, useEffect, useRef } from 'react'
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [resourcesOpen, setResourcesOpen] = useState(false)
+  const [currentTime, setCurrentTime] = useState('')
   const dropdownRef = useRef<HTMLLIElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
+
+  // Update time every minute
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date()
+      const month = String(now.getMonth() + 1).padStart(2, '0')
+      const day = String(now.getDate()).padStart(2, '0')
+      const hours = String(now.getHours()).padStart(2, '0')
+      const minutes = String(now.getMinutes()).padStart(2, '0')
+      setCurrentTime(`${month}/${day} ${hours}:${minutes}`)
+    }
+
+    updateTime() // Initial update
+    const interval = setInterval(updateTime, 60000) // Update every minute
+
+    return () => clearInterval(interval)
+  }, [])
 
   // Handle click outside to close dropdown
   useEffect(() => {
@@ -65,15 +83,6 @@ export default function Header() {
                   📝 Blog
                 </Link>
               </li>
-              <li>
-                <Link 
-                  href="/categories" 
-                  className="text-gray-700 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 font-medium transition-colors relative link-underline"
-                >
-                  Danh mục
-                </Link>
-              </li>
-              
               {/* Products - Affiliate */}
               <li>
                 <Link 
@@ -182,11 +191,28 @@ export default function Header() {
                 </Link>
               </li>
             </ul>
+            
+            {/* Clock Display */}
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm font-mono text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>{currentTime || '00/00 00:00'}</span>
+            </div>
+
             <ThemeToggle />
           </div>
 
           {/* Mobile Menu Button */}
           <div className="flex lg:hidden items-center gap-3">
+            {/* Mobile Clock */}
+            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-gray-100 dark:bg-gray-800 rounded-lg text-xs font-mono text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="whitespace-nowrap">{currentTime || '00/00 00:00'}</span>
+            </div>
+            
             <ThemeToggle />
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}

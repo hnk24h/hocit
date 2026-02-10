@@ -14,69 +14,63 @@ interface PDFBook {
 }
 
 export default function LibraryPage() {
-  const [books, setBooks] = useState<PDFBook[]>([
-    // Example books - you can add more or load from API
-    {
-      title: 'Sample PDF',
-      filename: 'sample.pdf',
-      description: 'A sample PDF book for testing',
-      author: 'Author Name',
-      type: 'pdf',
-    },
-    // Example Excel file
-    {
-      title: 'Sample Excel - Báo cáo doanh số',
-      filename: 'sample.xlsx',
-      description: 'Bảng tính Excel với 3 sheets: Doanh số, Báo cáo tháng, Nhân viên',
-      type: 'excel',
-    },
-    // Example Google Sheets (uncomment and replace with your own)
-    {
-      title: 'Google Sheets Example - Students 1',
-      filename: 'https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit',
-      description: 'Google public sample spreadsheet - Student roster data',
-      type: 'excel',
-    },
-    {
-      title: 'Google Sheets Example - Students 2',
-      filename: 'https://docs.google.com/spreadsheets/d/1uoAxwHWWdBotikvcCuHfMPj9vZ6LKN3II8kfRNg8aHU/edit',
-      description: 'Google public sample spreadsheet - Student roster data',
-      type: 'excel',
-    },
-    {
-      title: 'Japanese IT',
-      filename: 'Japanese IT.xlsx',
-      description: 'Japanese IT',
-      type: 'excel',
-    },
-    // Example external URL book (comment out if not needed)
-    // {
-    //   title: 'External PDF Example',
-    //   filename: 'https://example.com/book.pdf',
-    //   description: 'PDF from external URL',
-    //   author: 'External Author',
-    //   type: 'pdf',
-    // },
-  ])
-
+  const [books, setBooks] = useState<PDFBook[]>([])
+  const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [showAddUrl, setShowAddUrl] = useState(false)
   const [newBookUrl, setNewBookUrl] = useState('')
   const [newBookTitle, setNewBookTitle] = useState('')
 
-  const handleAddExternalBook = () => {
+  // Load library from API
+  useEffect(() => {
+    loadLibrary()
+  }, [])
+
+  const loadLibrary = async () => {
+    try {
+      const response = await fetch('/api/library')
+      const data = await response.json()
+      setBooks(data)
+    } catch (error) {
+      console.error('Failed to load library:', error)
+      // Fallback to empty array
+      setBooks([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleAddExternalBook = async () => {
     if (newBookUrl && newBookTitle) {
-      setBooks([
-        ...books,
-        {
-          title: newBookTitle,
-          filename: newBookUrl,
-          description: 'External PDF',
-        },
-      ])
-      setNewBookUrl('')
-      setNewBookTitle('')
-      setShowAddUrl(false)
+      try {
+        const response = await fetch('/api/library', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: newBookTitle,
+            filename: newBookUrl,
+            description: 'External file',
+            type: newBookUrl.toLowerCase().includes('.xlsx') || newBookUrl.includes('spreadsheet') ? 'excel' : 'pdf'
+          })
+        })
+
+        const result = await response.json()
+        
+        if (response.ok) {
+          // Reload library
+          await loadLibrary()
+          setNewBookUrl('')
+          setNewBookTitle('')
+          setShowAddUrl(false)
+        } else if (result.exists) {
+          alert('⚠️ File này đã có trong thư viện')
+        } else {
+          alert('❌ Lỗi: ' + result.error)
+        }
+      } catch (error) {
+        console.error('Failed to add book:', error)
+        alert('❌ Không thể thêm file vào thư viện')
+      }
     }
   }
 
@@ -182,7 +176,12 @@ export default function LibraryPage() {
 
       {/* Books Grid */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {filteredBooks.length === 0 ? (
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-brand-600"></div>
+            <p className="text-gray-500 dark:text-gray-400 mt-4">Đang tải thư viện...</p>
+          </div>
+        ) : filteredBooks.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-500 dark:text-gray-400 mb-4">
               {searchQuery ? 'Không tìm thấy tài liệu phù hợp.' : 'Thư viện chưa có tài liệu.'}

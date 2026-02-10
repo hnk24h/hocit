@@ -1,0 +1,40 @@
+[
+  {
+    "title": "Từ vựng IT",
+    "filename": "https://docs.google.com/spreadsheets/d/1nwQfr1-hLAaXHR3BDO90FkMMSwIjwUq2m3XOcugx2oo/edit?usp=sharing",
+    "description": "External file",
+    "type": "excel",
+    "addedAt": "2026-02-10T13:24:58.336Z"
+  },
+  {
+    "title": "Sample PDF",
+    "filename": "sample.pdf",
+    "description": "A sample PDF book for testing",
+    "author": "Author Name",
+    "type": "pdf"
+  },
+  {
+    "title": "Sample Excel - Báo cáo doanh số",
+    "filename": "sample.xlsx",
+    "description": "Bảng tính Excel với 3 sheets: Doanh số, Báo cáo tháng, Nhân viên",
+    "type": "excel"
+  },
+  {
+    "title": "Google Sheets Example - Students 1",
+    "filename": "https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit",
+    "description": "Google public sample spreadsheet - Student roster data",
+    "type": "excel"
+  },
+  {
+    "title": "Google Sheets Example - Students 2",
+    "filename": "https://docs.google.com/spreadsheets/d/1uoAxwHWWdBotikvcCuHfMPj9vZ6LKN3II8kfRNg8aHU/edit",
+    "description": "Google public sample spreadsheet - Student roster data",
+    "type": "excel"
+  },
+  {
+    "title": "Japanese IT",
+    "filename": "Japanese IT.xlsx",
+    "description": "Japanese IT",
+    "type": "excel"
+  }
+]

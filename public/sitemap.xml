@@ -2,21 +2,27 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://ikagi.site</loc>
-    <lastmod>2026-02-09T21:51:52.700Z</lastmod>
+    <lastmod>2026-02-10T13:24:13.089Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://ikagi.site/categories</loc>
-    <lastmod>2026-02-09T21:51:52.700Z</lastmod>
+    <lastmod>2026-02-10T13:24:13.089Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://ikagi.site/about</loc>
-    <lastmod>2026-02-09T21:51:52.700Z</lastmod>
+    <lastmod>2026-02-10T13:24:13.089Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://ikagi.site/articles/xac-dinh-ai-la-nguoi-hanh-dong-de-dich-dung-part-2</loc>
+    <lastmod>2026-02-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://ikagi.site/articles/xac-dinh-ai-la-nguoi-hanh-dong-de-dich-dung</loc>
@@ -67,44 +73,50 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://ikagi.site/category/course</loc>
+    <lastmod>2026-02-10T13:24:13.089Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://ikagi.site/category/h%E1%BB%8Dc%20ti%E1%BA%BFng%20nh%E1%BA%ADt</loc>
-    <lastmod>2026-02-09T21:51:52.700Z</lastmod>
+    <lastmod>2026-02-10T13:24:13.089Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://ikagi.site/category/tr%E1%BA%A3i%20nghi%E1%BB%87m</loc>
-    <lastmod>2026-02-09T21:51:52.700Z</lastmod>
+    <lastmod>2026-02-10T13:24:13.089Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://ikagi.site/category/web-development</loc>
-    <lastmod>2026-02-09T21:51:52.700Z</lastmod>
+    <lastmod>2026-02-10T13:24:13.089Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://ikagi.site/category/life</loc>
-    <lastmod>2026-02-09T21:51:52.700Z</lastmod>
+    <lastmod>2026-02-10T13:24:13.089Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://ikagi.site/category/sql</loc>
-    <lastmod>2026-02-09T21:51:52.700Z</lastmod>
+    <lastmod>2026-02-10T13:24:13.089Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://ikagi.site/category/javascript</loc>
-    <lastmod>2026-02-09T21:51:52.700Z</lastmod>
+    <lastmod>2026-02-10T13:24:13.089Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://ikagi.site/category/bash</loc>
-    <lastmod>2026-02-09T21:51:52.700Z</lastmod>
+    <lastmod>2026-02-10T13:24:13.089Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
